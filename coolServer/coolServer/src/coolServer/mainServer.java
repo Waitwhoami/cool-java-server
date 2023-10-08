@@ -14,9 +14,11 @@ public class mainServer {
 		
 		try {
 			ServerSocket ws = new ServerSocket(7979);	//Creating new socket port
+			ws.setSoTimeout(10000);
 			while(true) {
 				
 				Socket s = ws.accept();		//Accepting socket port
+				
 				
 				//Initializing input / output stuff
 				BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -29,24 +31,26 @@ public class mainServer {
 				}
 				out.println("David Menon\n");
 				
-				//Keeping the connection with a client until it writes "exit"
+				
+				//Keeping the connection with a client until it writes either "exit" or "quit"
+				
 				String str = "";
-				while(!str.equalsIgnoreCase("exit") || !str.equalsIgnoreCase("quit")) {
+				while(!str.equalsIgnoreCase("exit") && !str.equalsIgnoreCase("quit")) {
+					StringBuilder stb = new StringBuilder("");
+					str = in.readLine();
 					
-					switch(str) {
-					case "date":
-					    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  //The server only partially takes echo commands wth im way too lazy to fix that
+					if(str.equalsIgnoreCase("date")) {
+					    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 					    Date date = new Date();  
 					    out.println(formatter.format(date));  
 					    str = in.readLine();
-					    break;
-					default:
-						str = in.readLine();
-						out.println(str);
-						break;
 					}
-					str = in.readLine();
+					else {
+						stb = new StringBuilder(str);
+						out.println(stb.reverse());
+					}
 				}
+				//Here starts all the code that will get executed once a client gets off the server
 				out.println("Client: " + ip);
 				out.println("Porta: " + s.getPort());
 				out.println("Tempo connessione: " + System.currentTimeMillis());
@@ -54,6 +58,7 @@ public class mainServer {
 					in.close();
 					s.close();
 			}
+			
 		}catch(IOException e) {
 			System.err.println("Coglione usa un'altra porta \n");
 			e.printStackTrace();
